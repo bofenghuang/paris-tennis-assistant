@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Paris Tennis · Court Booking Assistant</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=recherche&view=recherche_creneau" target="_blank" rel="noreferrer">
+          <span class="brand-mark" aria-hidden="true"><i></i></span>
+          <span><strong>PARIS TENNIS</strong><small data-i18n="brandSubtitle">Booking assistant · Local</small></span>
+        </a>
+        <div class="topbar-actions">
+          <div class="language-switcher" role="group" aria-label="Language" data-i18n-aria-label="languageLabel">
+            <button type="button" data-language="en" aria-pressed="true">EN</button>
+            <button type="button" data-language="zh" aria-pressed="false">中文</button>
+          </div>
+          <div class="schedule-pill"><span class="pulse"></span><span class="schedule-prefix" data-i18n="scheduleDaily">Daily</span> 08:00 <b>Europe/Paris</b></div>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <p class="eyebrow">COURT CONCIERGE</p>
+            <h1 data-i18n-html="heroTitle">Your 8 a.m. edge,<br /><em>handled locally.</em></h1>
+            <p class="hero-copy" data-i18n="heroCopy">As soon as the newest date opens, the assistant searches by your venue and time priorities, then books the best slot using only your existing 10-hour pass balance.</p>
+          </div>
+          <div class="hero-court" aria-hidden="true">
+            <div class="court-line center"></div>
+            <div class="court-line left"></div>
+            <div class="court-line right"></div>
+            <span class="ball"></span>
+            <span class="hero-time">08:00</span>
+          </div>
+        </section>
+
+        <section class="status-grid" aria-label="Application status" data-i18n-aria-label="applicationStatus">
+          <article class="status-card">
+            <span class="status-icon" id="authIcon">01</span>
+            <div><small data-i18n="loginSession">Login session</small><strong id="authStatus">Checking…</strong></div>
+            <button class="text-button" id="loginButton" type="button">Log in</button>
+          </article>
+          <article class="status-card">
+            <span class="status-icon">02</span>
+            <div><small data-i18n="dailyTask">Daily task</small><strong id="armedStatus">Not enabled</strong></div>
+            <span class="mini-tag" id="modeStatus">Assist</span>
+          </article>
+          <article class="status-card wide">
+            <span class="status-icon">03</span>
+            <div><small data-i18n="latestRun">Latest run</small><strong id="runStatus">No runs yet</strong><p id="runMessage"></p></div>
+          </article>
+        </section>
+
+        <section class="notice">
+          <span class="notice-mark">!</span>
+          <p data-i18n-html="balanceNotice"><strong>Existing balance only</strong> The assistant may debit only an <b>Abonnement 10h</b> already owned by your account. It never buys or tops up a pass or uses a bank card; it stops if the balance or page is unclear.</p>
+        </section>
+
+        <form id="settingsForm">
+          <section class="panel">
+            <div class="panel-heading">
+              <div><span class="section-number">01</span><h2 data-i18n="whereTitle">Where to play</h2></div>
+              <p data-i18n="whereDescription">Each venue is ranked together with its own court-number preferences.</p>
+            </div>
+            <div class="form-grid location-options">
+              <label class="field">
+                <span><span data-i18n="postalCodes">Paris postcodes</span> <small data-i18n="upToFive">Up to 5</small></span>
+                <input id="postalCodes" name="postalCodes" placeholder="e.g. 75015, 75016" data-i18n-placeholder="postalPlaceholder" autocomplete="off" />
+                <small data-i18n="postalHint">Leave blank to search the first five venue names below.</small>
+              </label>
+              <label class="field compact">
+                <span data-i18n="indoorOutdoor">Indoor / outdoor</span>
+                <select id="coveredPreference" name="coveredPreference">
+                  <option value="any" data-i18n="either">Either</option>
+                  <option value="covered" data-i18n="coveredOnly">Indoor only</option>
+                  <option value="outdoor" data-i18n="outdoorOnly">Outdoor only</option>
+                </select>
+              </label>
+              <label class="field compact">
+                <span><span data-i18n="surfaceKeywords">Surface keywords</span> <small data-i18n="optional">Optional</small></span>
+                <input id="surfaceKeywords" name="surfaceKeywords" placeholder="e.g. Synthétique, Béton" data-i18n-placeholder="surfacePlaceholder" />
+              </label>
+            </div>
+            <div class="venue-editor field">
+              <div class="venue-editor-heading">
+                <span><span data-i18n="venueCourtPriority">Venue and court-number priority</span> <small data-i18n="favoriteFirst">Put your favourite row first</small></span>
+                <button class="add-venue-button" id="addVenueButton" type="button" data-i18n="addVenue">＋ Add venue</button>
+              </div>
+              <div class="venue-editor-columns" aria-hidden="true">
+                <span data-i18n="order">Order</span><span data-i18n="venueName">Venue name</span><span data-i18n="courtNumbers">Court numbers at this venue</span><span data-i18n="adjust">Adjust</span>
+              </div>
+              <div class="venue-preference-list" id="venuePreferenceList"></div>
+              <small data-i18n="venuePriorityHint">Venue order always wins. Court numbers rank slots only within the same venue. Separate numbers with commas; leave blank to accept any court.</small>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div><span class="section-number">02</span><h2 data-i18n="whenTitle">When to play</h2></div>
+              <p data-i18n="whenDescription">At 08:00 each day, only the newly released date is considered.</p>
+            </div>
+            <fieldset class="field weekday-field">
+              <legend><span data-i18n="weekdaysLegend">Eligible weekdays</span> <small class="selection-hint" data-i18n="selectionHint">Dark green = selected · White = not selected</small></legend>
+              <div class="weekday-row" id="weekdayRow">
+                <label><input type="checkbox" value="1" /><span data-i18n="weekdayMon">Mon</span></label>
+                <label><input type="checkbox" value="2" /><span data-i18n="weekdayTue">Tue</span></label>
+                <label><input type="checkbox" value="3" /><span data-i18n="weekdayWed">Wed</span></label>
+                <label><input type="checkbox" value="4" /><span data-i18n="weekdayThu">Thu</span></label>
+                <label><input type="checkbox" value="5" /><span data-i18n="weekdayFri">Fri</span></label>
+                <label><input type="checkbox" value="6" /><span data-i18n="weekdaySat">Sat</span></label>
+                <label><input type="checkbox" value="0" /><span data-i18n="weekdaySun">Sun</span></label>
+              </div>
+            </fieldset>
+            <div class="form-grid two-thirds">
+              <label class="field">
+                <span><span data-i18n="timePriority">Time priority</span> <small data-i18n="wholeHoursComma">Whole hours, comma-separated</small></span>
+                <input id="timePriority" name="timePriority" placeholder="18:00, 19:00, 20:00" />
+                <small data-i18n="timePriorityHint">08:00–21:00; earlier entries have higher priority.</small>
+              </label>
+              <label class="field price-field">
+                <span data-i18n="maximumPrice">Maximum price</span>
+                <span class="price-input"><input id="maxPriceEuros" name="maxPriceEuros" type="number" min="0" max="50" step="0.5" /><b>€</b></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div><span class="section-number">03</span><h2 data-i18n="afterFoundTitle">After a slot is found</h2></div>
+              <p data-i18n="afterFoundDescription">Run a search-only test first to check your filters.</p>
+            </div>
+            <div class="partner-card">
+              <div class="partner-copy">
+                <span class="partner-badge">AUTO</span>
+                <div><strong data-i18n="defaultPartner">Default partner</strong><small data-i18n="defaultPartnerHint">After you complete human verification, the assistant fills this name and continues to the pass step. Email stays blank.</small></div>
+              </div>
+              <div class="partner-fields">
+                <label class="field">
+                  <span><span data-i18n="lastName">Last name</span> <small>Nom</small></span>
+                  <input id="partnerLastName" name="partnerLastName" autocomplete="family-name" placeholder="e.g. Morgan" data-i18n-placeholder="lastNamePlaceholder" />
+                </label>
+                <label class="field">
+                  <span><span data-i18n="firstName">First name</span> <small>Prénom</small></span>
+                  <input id="partnerFirstName" name="partnerFirstName" autocomplete="given-name" placeholder="e.g. Alex" data-i18n-placeholder="firstNamePlaceholder" />
+                </label>
+              </div>
+            </div>
+            <div class="mode-grid">
+              <label class="mode-card">
+                <input type="radio" name="mode" value="monitor" />
+                <span class="radio-dot"></span>
+                <strong data-i18n="monitorOnly">Monitor only</strong>
+                <small data-i18n="monitorOnlyHint">Search, rank and save screenshots without clicking a booking.</small>
+              </label>
+              <label class="mode-card">
+                <input type="radio" name="mode" value="assist" />
+                <span class="radio-dot"></span>
+                <strong data-i18n="autoBook">Book with existing pass</strong>
+                <small data-i18n="autoBookHint">Click the best slot; you complete the CAPTCHA, then the assistant fills the partner and confirms with your existing Abonnement 10h balance.</small>
+              </label>
+            </div>
+
+            <div class="safety-list">
+              <span data-i18n-html="safetyWeekly">Maximum 2 bookings per week <b>Locked</b></span>
+              <span data-i18n-html="safetyCaptcha">Human CAPTCHA <b>Locked</b></span>
+              <span data-i18n-html="safetyPartner">Automatic partner entry <b>Enabled</b></span>
+              <span data-i18n-html="safetyPass">Existing pass balance only <b>Locked</b></span>
+              <span data-i18n-html="safetyNoCard">No bank card or top-up <b>Locked</b></span>
+              <span data-i18n-html="safetyRetries">Up to 20 retries when all slots are empty <b>Enabled</b></span>
+            </div>
+
+            <label class="arm-row">
+              <span><strong data-i18n="enableDaily">Enable the daily 08:00 task</strong><small data-i18n="enableDailyHint">Log in and complete a search test before enabling it.</small></span>
+              <input id="armed" type="checkbox" role="switch" />
+              <i aria-hidden="true"></i>
+            </label>
+          </section>
+
+          <div class="action-row">
+            <button class="button secondary" id="testButton" type="button"><span>Test search only</span><small>No booking will be clicked</small></button>
+            <button class="button live" id="realRunButton" type="button"><span>Try a real booking now</span><small>Reserves a slot and debits the pass</small></button>
+            <button class="button primary" id="saveButton" type="submit" data-i18n="saveSettings">Save settings</button>
+          </div>
+        </form>
+
+        <section class="run-feedback" id="runFeedback" aria-live="polite" hidden>
+          <span class="run-feedback-dot" aria-hidden="true"></span>
+          <div>
+            <header><strong id="runFeedbackTitle">Preparing run</strong><time id="runFeedbackTime"></time></header>
+            <p id="runFeedbackMessage"></p>
+          </div>
+        </section>
+
+        <section class="panel results-panel" id="resultsPanel" hidden>
+          <div class="panel-heading">
+            <div><span class="section-number">04</span><h2 data-i18n="recentCandidates">Recent candidates</h2></div>
+            <div class="result-heading-meta"><p id="resultMeta"></p><small data-i18n="candidateSnapshotHint">This is a search snapshot and is not clickable. A real booking searches again for the best current slot.</small></div>
+          </div>
+          <div class="result-list" id="resultList"></div>
+        </section>
+
+        <footer>
+          <p data-i18n="localServiceFooter">Local service · Listens only on 127.0.0.1 · Passwords are never written to disk</p>
+          <a href="https://tennis.paris.fr/tennis/jsp/site/Portal.jsp?page=helpdesk&faq_id=2" target="_blank" rel="noreferrer" data-i18n="officialRules">View the official Paris Tennis rules ↗</a>
+        </footer>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

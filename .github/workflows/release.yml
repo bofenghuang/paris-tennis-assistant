@@ -1,0 +1,29 @@
+name: Publish release ZIP
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@v4
+
+      - name: Build the privacy-safe source archive
+        run: git archive --format=zip --output=paris-tennis-assistant.zip "$GITHUB_SHA"
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          paris-tennis-assistant.zip
+          --title "Paris Tennis Assistant $GITHUB_REF_NAME"
+          --notes "Privacy-safe release archive for automatic installation with Codex. See README.md or README_ZH.md for setup and safety notes."

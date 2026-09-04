@@ -1,0 +1,44 @@
+{
+  "version": 5,
+  "armed": false,
+  "mode": "assist",
+  "postalCodes": [],
+  "venuePreferences": [
+    { "venue": "Atlantique", "courts": [3, 1] },
+    { "venue": "Suzanne Lenglen", "courts": [8, 6] }
+  ],
+  "targetWeekdays": [1, 2, 3, 4, 5, 6, 0],
+  "timePriority": ["18:00", "19:00", "20:00", "21:00"],
+  "maxPriceEuros": 12,
+  "coveredPreference": "any",
+  "surfaceKeywords": [],
+  "release": {
+    "targetOffsetDays": 6,
+    "waitSeconds": 45,
+    "retryIntervalSeconds": 3,
+    "searchAttempts": 3,
+    "noAvailabilityAttempts": 20
+  },
+  "browser": {
+    "headless": false,
+    "takeoverMinutes": 15
+  },
+  "partner": {
+    "firstName": "",
+    "lastName": ""
+  },
+  "payment": {
+    "strategy": "existing-pass-only",
+    "preferredPass": "Abonnement 10h"
+  },
+  "safety": {
+    "maxBookingsPerWeek": 2,
+    "requireHumanForCaptcha": true,
+    "requireHumanForGuest": false,
+    "autoFillConfiguredPartner": true,
+    "autoConfirmExistingPass": true,
+    "allowCardPayment": false,
+    "allowPassPurchase": false,
+    "allowBalanceTopUp": false
+  }
+}

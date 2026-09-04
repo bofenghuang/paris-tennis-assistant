@@ -1,0 +1,8 @@
+node_modules/
+data/
+.playwright-cli/
+output/playwright/*
+!output/playwright/dashboard-en.png
+!output/playwright/dashboard-zh.png
+*.log
+.DS_Store
